@@ -1,5 +1,10 @@
-import java.util.Arrays;
-public class testSecuencial {
+package modelos;
+
+public class QuickSortSecuencial {
+
+    public QuickSortSecuencial(){
+
+    }
 
     public static void swap (int[] arr, int i, int j)
     {
@@ -54,16 +59,5 @@ public class testSecuencial {
 
         // se repite en el subarray que contiene más elementos que el pivote
         quicksort(a, pivot + 1, end);
-    }
-
-    // Implementación en Java del algoritmo Quicksort
-    public static void main(String[] args)
-    {
-        int[] a = { 9, -3, 5, 2, 6, 8, -6, 1, 3 };
-
-        quicksort(a, 0, a.length - 1);
-
-        // imprime la array ordenada
-        System.out.println(Arrays.toString(a));
     }
 }
