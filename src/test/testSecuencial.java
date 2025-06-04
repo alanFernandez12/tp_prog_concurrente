@@ -5,7 +5,7 @@ import modelos.QuickSortSecuencial;
 import java.util.Random;
 
 public class testSecuencial {
-    private static int tam = 1000000;
+    private static int tam = 100000;
     public static int[] array = new int[tam];
 
     // Implementación en Java del algoritmo Quicksort
