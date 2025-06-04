@@ -1,58 +1,60 @@
 package modelos;
 
-public class QuickSortConcurrente extends Thread{
-    private int[] arr;    // Arreglo a ordenar
-    private int low;      // Índice de inicio del subarreglo
-    private int high;     // Índice de fin del subarreglo
+import java.util.concurrent.RecursiveAction;
 
-    // Constructor que recibe el arreglo y los límites
+public class QuickSortConcurrente extends RecursiveAction {
+    private int[] arr;
+    private int low;
+    private int high;
+    private static final int THRESHOLD = 10000; // Tamaño mínimo para dividir tareas
+
     public QuickSortConcurrente(int[] arr, int low, int high) {
         this.arr = arr;
         this.low = low;
         this.high = high;
     }
 
-    // Método que se ejecuta cuando el hilo comienza
-    public void run() {
-        if (low < high) { // Condición base para dividir el arreglo
-            int pi = partition(arr, low, high); // Se obtiene la posición del pivote después de la partición
-
-            // Se crean dos nuevos hilos para ordenar las mitades izquierda y derecha del pivote
-            QuickSortConcurrente left = new QuickSortConcurrente(arr, low, pi - 1);
-            QuickSortConcurrente right = new QuickSortConcurrente(arr, pi + 1, high);
-
-            left.start(); // Se inicia el hilo izquierdo
-            right.start(); // Se inicia el hilo derecho
-
-            try {
-                left.join(); // Se espera que termine el hilo izquierdo
-                right.join(); // Se espera que termine el hilo derecho
-            } catch (InterruptedException e) {
-                e.printStackTrace(); // Manejo de excepción si un hilo es interrumpido
+    @Override
+    protected void compute() {
+        if (low < high) { // si el subarreglo tiene al menos dos elementos
+            if (high - low < THRESHOLD) { //si el arreglo es pequeño se puede ordernar secuencialmente
+                quickSortSecuencial(arr, low, high);
+            } else {
+                int pi = partition(arr, low, high); //Particiona el arreglo y obtiene el pivote
+                invokeAll( // crea 2 tareas en paralero y recursivo
+                        new QuickSortConcurrente(arr, low, pi - 1), //izquierdo
+                        new QuickSortConcurrente(arr, pi + 1, high) // derecho
+                );
             }
         }
     }
 
-    // Método para realizar la partición del arreglo
+    private void quickSortSecuencial(int[] arr, int low, int high) {
+        if (low < high) {
+            int pi = partition(arr, low, high);
+            quickSortSecuencial(arr, low, pi - 1);
+            quickSortSecuencial(arr, pi + 1, high);
+        }
+    }
+
     private int partition(int[] arr, int low, int high) {
-        int pivot = arr[high]; // Se toma el último elemento como pivote
-        int i = low - 1; // Índice del menor elemento
+        int pivot = arr[high]; // toma el ultimo elemento como pivote
+        int i = low - 1; //menor elemento
 
         for (int j = low; j < high; j++) {
-            if (arr[j] <= pivot) { // Si el elemento actual es menor o igual al pivote
-                i++; // Se incrementa el índice del menor
-                // Se intercambian los elementos en i y j
-                int temp = arr[i];
-                arr[i] = arr[j];
-                arr[j] = temp;
+            if (arr[j] <= pivot) { //si el elemento es menor o igual al pivote
+                i++; // incrementa el indice
+                swap(arr, i, j); // intercambia los elementos
             }
         }
 
-        // Se coloca el pivote en su posición correcta (i + 1)
-        int temp = arr[i + 1];
-        arr[i + 1] = arr[high];
-        arr[high] = temp;
+        swap(arr, i + 1, high); //coloca el pivote en su posición final
+        return i + 1; // Retorma el indice del pivote
+    }
 
-        return i + 1; // Se retorna el índice del pivote
+    private void swap(int[] arr, int i, int j) {
+        int tmp = arr[i]; // Intercambia dos elementos del arreglo
+        arr[i] = arr[j];
+        arr[j] = tmp;
     }
 }

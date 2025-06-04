@@ -3,9 +3,10 @@ package test;
 import modelos.QuickSortConcurrente;
 
 import java.util.Random;
+import java.util.concurrent.ForkJoinPool;
 
 public class TestQuickSortConcurrente {
-    private static int tam = 10000;
+    private static int tam = 1000000;
     public static int[] array = new int[tam];
 
     public static void main(String[] args) {
@@ -15,29 +16,23 @@ public class TestQuickSortConcurrente {
         for (int i = 0; i < tam ; i++) {
             array[i]= rand.nextInt(100);
         }
-        /*for (int i = 0; i < tam ; i++) {
-            System.out.print(" "+ array[i]);
-        }
+//        for (int i = 0; i < tam ; i++) {
+//            System.out.print(" "+ array[i]);
+//        }
 
-         */
-        // Crear el objeto ConcurrentQuickSort con todo el arreglo
+
+        ForkJoinPool pool = new ForkJoinPool();
         QuickSortConcurrente sorter = new QuickSortConcurrente(array, 0, array.length - 1);
-        sorter.start(); // Inicia el proceso concurrente
 
-        try {
-            sorter.join(); // Espera a que termine la ejecución de todos los hilos
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        long start = System.currentTimeMillis();
+        pool.invoke(sorter);
+        long end = System.currentTimeMillis();
 
-        // Mostrar el arreglo ordenado
-        System.out.println("termine :)");
-        /*
-        for (int i = 0; i < tam ; i++) {
-            System.out.print(" "+ array[i]);
-        }
-
-         */
+        System.out.println("Terminé :)");
+//        for (int i = 0; i < tam ; i++) {
+//            System.out.print(" "+ array[i]);
+//        }
+        System.out.println("Tiempo: " + (end - start) + " ms");
     }
 }
 
